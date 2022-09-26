@@ -1,7 +1,7 @@
 History Fetcher
 ===============
 
-Version 0.9 - 2022 September 27
+Version 0.9 - 2022 September 26
 
 by Steven Wilser 
 [stevenwilser.github.io](https://stevenwilser.github.io)
