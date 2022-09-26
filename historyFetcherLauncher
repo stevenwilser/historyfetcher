@@ -1,0 +1,152 @@
+#!/bin/bash
+
+rawHistoryFile="rawHistory.txt"
+findArray=()
+
+echo "Select browser [firefox/chromium]:"
+while true
+do
+    read browser
+    if [ $browser == "firefox" ]; then
+        while IFS=  read -r -d $'\0'; do
+       	    findArray+=("$REPLY")
+        done < <(sudo find / -name places.sqlite -print0)
+        for i in ${findArray[@]}; do
+            if [[ $i == *"$browser"* ]]; then 
+                location=$i
+            fi
+        done
+
+        sqlite3 $location '.output rawHistory.txt' 'select * from moz_places;'
+        break
+
+    elif [ $browser == "chromium" ]; then
+        while IFS=  read -r -d $'\0'; do
+            findArray+=("$REPLY")
+        done < <(sudo find / -name History -print0 )
+        for i in ${findArray[@]}; do
+            if [[ $i == *"$browser"* ]]; then 
+                location=$i
+            fi
+        done
+
+        sqlite3 $location '.output rawHistory.txt' 'select * from urls;'
+        break
+
+    else
+        echo "THE BROWSER SELECTED IS NOT SUPPORTED AT THIS TIME. PLEASE CHOOSE FROM THE OPTIONS PROVIDED."
+    fi
+done
+
+echo "Output filename?(do no put file extension):"
+read filename
+
+echo "Would you like to include URL Titles? [y/n]:"
+while true
+do
+    read titleYN
+    if [ "$titleYN" == "n" ]; then
+    	titleBin="0"
+        break
+    elif [ "$titleYN" == "y" ]; then
+    	titleBin="1"
+        break
+    else 
+        echo "Please type y for yes or n for no"
+    fi
+done
+
+echo "Would you like to include Visit Count? [y/n]:"
+while true
+do
+    read visitCountYN
+    if [ "$visitCountYN" == "n" ]; then
+    	visitCountBin="0"
+        break
+    elif [ "$visitCountYN" == "y" ]; then
+    	visitCountBin="1"
+        break
+    else
+        echo "Please type y for yes or n for no"
+    fi
+done
+
+if [ $browser == "firefox" ]; then
+    echo "Would you like to include Frecency (combines frequency and recency)? [y/n]:"
+    while true
+    do
+        read frecencyYN
+        if [ "$frecencyYN" == "n" ]; then
+       	    frecencyBin="0"
+            break
+        elif [ "$frecencyYN" == "y" ]; then
+       	    frecencyBin="1"
+            break
+        else
+            echo "Please type y for yes or n for no"
+        fi
+    done
+fi
+
+echo "Would you like to include Last Visit Date? [y/n]:"
+while true
+do
+    read lvdYN
+    if [ "$lvdYN" == "n" ]; then
+    	lvdBin="0"
+        break
+    elif [ "$lvdYN" == "y" ]; then
+    	lvdBin="1"
+        break
+    else
+        echo "Please type y for yes or n for no"
+    fi
+done
+
+echo "Would you like ouput file to be csv or txt format? [csv/txt]:"
+while true
+do
+    read csvTxt
+    if [ "$csvTxt" == "txt" ]; then
+    	csvTxtBin="0"
+        break
+    elif [ "$csvTxt" == "csv" ]; then
+    	csvTxtBin="1"
+        break
+    else
+        echo "Please type txt or csv"   
+    fi
+done
+
+filename="${filename}.${csvTxt}"
+
+echo " keyword results only? [y/n]:"
+
+while true
+do
+    read keywordYN
+    
+    if [ "$keywordYN" == "y" ]; then
+        echo "Input keyword:"
+        read keyword
+        if [ $browser == "firefox" ]; then
+            ./historyFetcher $keyword $rawHistoryFile $filename $csvTxtBin 1 1 $titleBin $visitCountBin $frecencyBin $lvdBin 0
+        else
+            ./historyFetcher $keyword $rawHistoryFile $filename $csvTxtBin 1 1 $titleBin $visitCountBin 0 $lvdBin 1
+        fi
+            rm "keywordHistory.txt"
+        break
+    elif [ "$keywordYN" == "n" ]; then
+        if [ $browser == "firefox" ]; then
+            ./historyFetcher 0 $rawHistoryFile $filename $csvTxtBin 1 1 $titleBin $visitCountBin $frecencyBin $lvdBin 0
+        else
+            ./historyFetcher 0 $rawHistoryFile $filename $csvTxtBin 1 1 $titleBin $visitCountBin 0 $lvdBin 1
+        fi
+        break
+
+    else
+        echo "Please type y for yes or n for no"
+    fi
+done
+
+rm "rawHistory.txt"
