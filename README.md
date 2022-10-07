@@ -6,7 +6,7 @@ Version 0.9 - 2022 September 26
 by Steven Wilser 
 [stevenwilser.github.io](https://stevenwilser.github.io)
 
-History Fetcher is a command-line linux program that parses the history data of Firefox and Chromium internet browsers and creates a txt or csv file containing the desired information for portable use. Available information includes: URL, URL Titles, Visit Count, Frecency (Firefox), and Last Visit Date.
+History Fetcher is a command-line linux program that parses the history data of Firefox and Chromium internet browsers and creates a txt or csv file containing the desired information for portable use. Available information includes: URL, URL Titles, Visit Count, Frecency (Firefox), Last Visit Date, and Keyword results.
 
 Installation and Requirements
 -----------------------------
